@@ -12,11 +12,11 @@ lightweight yet robust foundation.
 
 ** Features
 
-- **Pure-FTPd Server**: Lightweight and secure FTP server
-- **Fail2Ban Integration**: Automatic IP blocking for failed login attempts
-- **Configurable Security**: Customizable ban times and retry limits
-- **Upload Scripts**: Support for custom upload processing scripts
-- **Passive Mode Support**: Configurable passive IP for NAT environments
+- *Pure-FTPd Server*: Lightweight and secure FTP server
+- *Fail2Ban Integration*: Automatic IP blocking for failed login attempts
+- *Configurable Security*: Customizable ban times and retry limits
+- *Upload Scripts*: Support for custom upload processing scripts
+- *Passive Mode Support*: Configurable passive IP for NAT environments
 
 ** Quick Start
 
@@ -56,8 +56,8 @@ docker run -d \
 
 *** Exposed Ports
 
-- **Port 21**: FTP control connection
-- **Ports 30000-30009**: FTP passive data connections
+- *Port 21*: FTP control connection
+- *Ports 30000-30009*: FTP passive data connections
 
 ** Security Features
 
@@ -67,7 +67,7 @@ The container includes Fail2Ban configured specifically for Pure-FTPd
 to automatically ban IP addresses that exceed the maximum number of
 failed login attempts.
 
-**Default Settings:**
+*Default Settings:*
 - Maximum retries: 3 attempts
 - Ban time: 1 hour (3600 seconds)
 - Monitoring: Pure-FTPd authentication logs
@@ -135,20 +135,6 @@ services:
       - ./ftp-data:/home/ftpuser/uploads
     restart: unless-stopped
 #+end_src
-
-** Requirements
-
-- Docker Engine
-- Ports 21 and 30000-30009 available on the host
-- For passive mode: Configure =FTP_PASSIVE_IP= with your server's public IP
-
-** Security Considerations
-
-1. **Change Default Password**: Always set a strong password via =FTP_PASSWORD=
-2. **Firewall Configuration**: Ensure only necessary ports are exposed
-3. **Regular Updates**: Keep the Docker image updated for security patches
-4. **Monitor Logs**: Review Fail2Ban and FTP logs regularly
-5. **Network Security**: Consider using this container behind a reverse proxy or VPN
 
 ** License
 
