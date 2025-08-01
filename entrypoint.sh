@@ -92,8 +92,8 @@ fi
 
 # Start pure-ftpd in foreground
 exec /usr/sbin/pure-ftpd \
-     -c 1 \
-     -C 1 \
+     -c $FTP_MAXCLIENTSNUMBER \
+     -C $FTP_MAXCLIENTSPERIP \
      -l puredb:/etc/pure-ftpd/pureftpd.pdb \
      -E \
      -j \
