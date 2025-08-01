@@ -1,0 +1,155 @@
+* Docker Pure-FTPd
+
+A Dockerized Pure-FTPd server with integrated Fail2Ban protection for
+secure FTP hosting.
+
+** Overview
+
+This Docker image provides a complete FTP server solution based on
+Pure-FTPd with built-in security features including Fail2Ban for
+intrusion prevention. The image is built on Debian Bookworm Slim for a
+lightweight yet robust foundation.
+
+** Features
+
+- **Pure-FTPd Server**: Lightweight and secure FTP server
+- **Fail2Ban Integration**: Automatic IP blocking for failed login attempts
+- **Configurable Security**: Customizable ban times and retry limits
+- **Upload Scripts**: Support for custom upload processing scripts
+- **Passive Mode Support**: Configurable passive IP for NAT environments
+
+** Quick Start
+
+*** Build the Image
+
+#+begin_src shell
+docker build -t pure-ftpd .
+#+end_src
+
+*** Run the Container
+
+#+begin_src shell
+docker run -d \
+  --name pure-ftpd \
+  -p 21:21 \
+  -p 30000-30009:30000-30009 \
+  -e FTP_USER=myuser \
+  -e FTP_PASSWORD=mypassword \
+  pure-ftpd
+#+end_src
+
+** Configuration
+
+*** Environment Variables
+
+| Variable            | Default                        | Description                        |
+|---------------------+--------------------------------+------------------------------------|
+| =FTP_USER=          | =ftpuser=                      | FTP username                       |
+| =FTP_PASSWORD=      | =changeme=                     | FTP password                       |
+| =FTP_PASSIVE_IP=    | =localhost=                    | IP address for passive mode        |
+| =FTP_UID=           | =1000=                         | User ID for FTP user               |
+| =FTP_GID=           | =1000=                         | Group ID for FTP user              |
+| =FTP_UPLOADSCRIPT=  | =/home/ftpuser/scripts/upload= | Path to upload processing script   |
+| =FAIL2BAN_ENABLED=  | =true=                         | Enable/disable Fail2Ban protection |
+| =FAIL2BAN_MAXRETRY= | =3=                            | Maximum failed attempts before ban |
+| =FAIL2BAN_BANTIME=  | =3600=                         | Ban duration in seconds (1 hour)   |
+
+*** Exposed Ports
+
+- **Port 21**: FTP control connection
+- **Ports 30000-30009**: FTP passive data connections
+
+** Security Features
+
+*** Fail2Ban Protection
+
+The container includes Fail2Ban configured specifically for Pure-FTPd
+to automatically ban IP addresses that exceed the maximum number of
+failed login attempts.
+
+**Default Settings:**
+- Maximum retries: 3 attempts
+- Ban time: 1 hour (3600 seconds)
+- Monitoring: Pure-FTPd authentication logs
+
+*** File System Security
+
+- Dedicated FTP user with restricted shell (=/bin/false=)
+- Isolated upload directory structure
+- Proper file permissions and ownership
+
+** Directory Structure
+
+#+begin_example
+/home/ftpuser/
+├── uploads/          * FTP upload directory
+└── scripts/          * Custom processing scripts
+    └── upload        * Upload event script
+#+end_example
+
+** Advanced Usage
+
+*** Custom Upload Scripts
+
+You can mount custom scripts to process uploaded files:
+
+#+begin_src shell
+docker run -d \
+  --name pure-ftpd \
+  -p 21:21 \
+  -p 30000-30009:30000-30009 \
+  -v /path/to/your/script:/home/ftpuser/scripts/upload \
+  -e FTP_UPLOADSCRIPT=/home/ftpuser/scripts/upload \
+  pure-ftpd
+#+end_src
+
+*** Persistent Data
+
+Mount volumes for persistent FTP data:
+
+#+begin_src shell
+docker run -d \
+  --name pure-ftpd \
+  -p 21:21 \
+  -p 30000-30009:30000-30009 \
+  -v /host/ftp/data:/home/ftpuser/uploads \
+  pure-ftpd
+#+end_src
+
+*** Docker Compose
+
+#+begin_src yaml
+version: '3.8'
+services:
+  pure-ftpd:
+    build: .
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      - FTP_USER=myuser
+      - FTP_PASSWORD=mypassword
+      - FTP_PASSIVE_IP=your.server.ip
+      - FAIL2BAN_ENABLED=true
+    volumes:
+      - ./ftp-data:/home/ftpuser/uploads
+    restart: unless-stopped
+#+end_src
+
+** Requirements
+
+- Docker Engine
+- Ports 21 and 30000-30009 available on the host
+- For passive mode: Configure =FTP_PASSIVE_IP= with your server's public IP
+
+** Security Considerations
+
+1. **Change Default Password**: Always set a strong password via =FTP_PASSWORD=
+2. **Firewall Configuration**: Ensure only necessary ports are exposed
+3. **Regular Updates**: Keep the Docker image updated for security patches
+4. **Monitor Logs**: Review Fail2Ban and FTP logs regularly
+5. **Network Security**: Consider using this container behind a reverse proxy or VPN
+
+** License
+
+This project follows the licensing terms of its components (Pure-FTPd, Fail2Ban, and Debian).
